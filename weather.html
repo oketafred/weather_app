@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Weather Application</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+
+	<div class="container" style="margin-top: 120px">
+		<div class="row">
+			<div class="col-md-8 offset-md-2">
+				<h2 class="text-center">Weather App</h2>
+				<div class="input-group mb-3">
+				  <input id="cityName" type="text" class="form-control" placeholder="Enter City Name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+				  <div class="input-group-append">
+				    <button id="searchButton" class="btn btn-success" type="button">Search</button>
+				  </div>
+				</div>
+				<!-- Output -->
+				<div id="display"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+
+		let output = "";
+
+		let searchButton = document.getElementById("searchButton");
+
+		searchButton.addEventListener("click", function () {
+			
+			let cityName = document.getElementById("cityName").value;
+
+			if (cityName != "") {
+				fetch(`https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20${cityName}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys`)
+			.then(response => response.json())
+			.then(data => {
+
+				console.log(data)
+
+				let imageSource = data.query.results.channel.image;
+
+				let todayForecast =data.query.results.channel.item.forecast[0];
+				
+				output += `
+					<div class="alert alert-success" role="alert">
+					  <h4 class="alert-heading">Weather Forecast!</h4>
+					  <p>Date: ${todayForecast.date} Day: ${todayForecast.day} </p>
+					  <hr>
+					  <p class="mb-0">High: ${todayForecast.high} Low: ${todayForecast.low} </p>
+					  <hr>
+					  <p class="mb-0">Conditionn: ${todayForecast.text} </p>
+					  <hr>
+					  <img src="${imageSource.url}">
+					</div>
+				`;
+
+				document.getElementById("display").innerHTML = output;
+
+				// Clear input
+				document.getElementById("cityName").value = "";
+
+			})
+			}else{
+				alert("Enter City Name")
+			}			
+
+		});
+
+
+
+
+		
+		
+	</script>
+</body>
+</html>
